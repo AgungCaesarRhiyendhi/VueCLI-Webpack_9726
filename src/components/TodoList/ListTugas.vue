@@ -25,10 +25,7 @@
                         {{ item.priority }}
                     </v-chip>
                 </template> -->
-
-
                 <template v-slot:[`item.actions`]="{ item }">
-                    
                     <v-btn small class="mr-2" @click="editItem(item) ">
                         edit
                     </v-btn>
@@ -36,7 +33,25 @@
                         delete
                     </v-btn>
                 </template>
+                <template v-slot:[`item.select`]="{ item }">
+                    <input multiple :key="item" @click.capture.stop="toggleSelect(item)" type="checkbox" />
+                </template>
             </v-data-table>
+        </v-card>
+        <v-card v-if="selected.length" style="padding: 20px;">
+            <v-card-title>
+                <h4>Delete Multiple:</h4>
+            </v-card-title>
+            <v-list-item
+                v-for="(item, i) in selected"
+                :key="i">
+                <v-list-item-content>
+                    <v-list-item-title>•  {{item.task}}</v-list-item-title>
+                </v-list-item-content>
+            </v-list-item>
+            <v-btn color="red lighten-2" dark @click="deleteSelected">
+                Delete ALL
+            </v-btn>
         </v-card>
 
         <v-dialog v-model="dialog" persistent max-width="600px">
@@ -148,6 +163,7 @@ data() {
         dialogdelete: false,
         dialogedit: false,
         sementara: null,
+        selected: [],
         headers: [
             {
                 text: "Task",
@@ -158,6 +174,7 @@ data() {
             { text: "Priority", value: "priority" },
             { text: "Note", value: "note" },
             { text: "Actions", value: "actions" },
+            { text: "Select", value: "select"}
         ],
         todos: [
             {
@@ -238,11 +255,30 @@ data() {
             this.sementara = null;
             this.dialogedit = false;
         },
-    //     getColor (priority) {
-    //         if (this.todos.priority = "Penting") return 'red'
-    //         else if (this.todos.priority = "Tidak penting") return 'green'
-    //     else return 'blue'
-    //   },
+
+        // getColor (priority) {
+        //     if (this.todos.priority = "Penting") return 'red'
+        //     else if (this.todos.priority = "Tidak penting") return 'green'
+        // else return 'blue'
+        // },
+
+        toggleSelect(item) {
+            if(this.selected.includes(item)) {
+                this.selected.splice(this.selected.indexOf(item), 1);
+            } else {
+                this.selected.push(item);
+            }
+        },
+
+        deleteSelected () {
+            for(var i = 0; i < this.selected.length; i++){
+                const index = this.todos.indexOf(this.selected[i]);
+                this.todos.splice(index, 1);
+            }
+            this.selected=[];
+            toggleSelect(this.todos);
+        },
+        
     },
 };
 </script>
